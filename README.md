@@ -33,7 +33,7 @@ The library exports 2 functions:
 
 * open(path, blocking):
   + Returns a handler to the device specified via path. Return nil,err on error.
-    * This device has exactly one function, :read(), which will return the next event as a table.
+    * This device has exactly one function, :read(), which will return the next event as a table if aviable, nil otherwise. (non-blocking)
 * list()
   + Returns a list of all aviable inputs.
 
