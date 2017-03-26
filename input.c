@@ -178,18 +178,10 @@ static int l_list(lua_State *L) {
 
 
 
-
-
-
-int luaopen_input(lua_State *L) {
-	luaL_Reg functions[] = {
-		//{"open_blocking", l_open_non_blocking},
-		{"open", l_open},
-		{"list", l_list},
-		{"read_multiple", l_read_multiple},
-		{NULL, NULL}
-	};
-
-	luaL_openlib(L, "input", functions, 0);
-	return 0;
+LUALIB_API int luaopen_input(lua_State *L) {
+	lua_newtable(L);
+	LUA_T_PUSH_S_CF("open", l_open)
+	LUA_T_PUSH_S_CF("read_multiple", l_read_multiple)
+	LUA_T_PUSH_S_CF("list", l_list)
+	return 1;
 }
