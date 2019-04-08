@@ -66,7 +66,7 @@ static int l_open(lua_State *L) {
 		return 2;
 	}
 
-	lua_createtable(L, 0, 9);
+	lua_newtable(L);
 	lua_pushvalue(L, -1);
 	lua_setfield(L, -2, "__index");
 	LUA_T_PUSH_S_CF("read", l_input_read)
@@ -103,85 +103,9 @@ static int l_read_multiple(lua_State *L) {
 }
 
 
-static int l_list(lua_State *L) {
-	FILE *fp;
-	char *line = NULL;
-	size_t len = 0;
-
-	int index = 1;
-	int bus = 0;
-	int vendor = 0;
-	int product = 0;
-	int version = 0;
-	char name[255];
-	char phys[255];
-	char sysfs[255];
-	char handlers[255];
-
-	fp = fopen("/proc/bus/input/devices", "r");
-	if (fp == NULL) {
-		lua_pushnil(L);
-		lua_pushstring(L, "Can't open /proc/bus/input/devices");
-		return 2;
-	}
-
-	lua_newtable(L);
-
-	while (getline(&line, &len, fp) != -1) {
-		if (strlen(line) - 1 > 0) {
-			line[strlen(line)-1] = '\0';
-			if (line[0] == 'I') {
-				sscanf(line, "I: Bus=%4x Vendor=%4x Product=%4x Version=%4x", &bus, &vendor, &product, &version);
-			} else if (line[0] == 'N') {
-				sscanf(line, "N: Name=\"%254c", name);
-				phys[strlen(line) - strlen("N: Name=\"") - 2] = '\0';
-			} else if (line[0] == 'P') {
-				sscanf(line, "P: Phys=%254c", phys);
-				phys[strlen(line) - strlen("P: Phys=") - 1] = '\0';
-			} else if (line[0] == 'S') {
-				sscanf(line, "S: Sysfs=%254c", sysfs);
-				sysfs[strlen(line) - strlen("S: Sysfs=") - 1] = '\0';
-			} else if (line[0] == 'H') {
-				sscanf(line, "H: Handlers=%254c", handlers);
-				handlers[strlen(line) - strlen("H: Handlers=") - 1] = '\0';
-			}
-		} else {			
-			lua_pushnumber(L, index);
-			lua_newtable(L);
-
-			LUA_T_PUSH_S_S("handlers", handlers)
-			LUA_T_PUSH_S_S("sysfs", sysfs)
-			LUA_T_PUSH_S_S("phys", phys)
-			LUA_T_PUSH_S_S("name", name)
-
-			lua_pushstring(L, "id");
-			lua_newtable(L);
-
-			LUA_T_PUSH_S_N("bus", bus)
-			LUA_T_PUSH_S_N("vendor", vendor)
-			LUA_T_PUSH_S_N("product", product)
-			LUA_T_PUSH_S_N("version", version)
-
-			lua_settable(L, -3);
-
-			lua_settable(L, -3);
-
-			index = index + 1;
-		}
-	}
-
-	fclose(fp);
-	free(line);
-
-	return 1;
-}
-
-
-
 LUALIB_API int luaopen_input(lua_State *L) {
 	lua_newtable(L);
 	LUA_T_PUSH_S_CF("open", l_open)
 	LUA_T_PUSH_S_CF("read_multiple", l_read_multiple)
-	LUA_T_PUSH_S_CF("list", l_list)
 	return 1;
 }
