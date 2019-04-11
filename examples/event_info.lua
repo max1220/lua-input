@@ -1,9 +1,6 @@
 #!/usr/bin/env luajit
-package.cpath = package.cpath .. ";../?.so"
-package.path = package.path .. ";../?.lua"
-local input = require("input")
-local input_event_codes = require("input-event-codes")
-local get_inputs_list = require("get_inputs_list")
+local input = require("lua-input")
+local input_event_codes = input.event_codes
 
 
 function list_by_pattern_value(pattern, value)
@@ -14,7 +11,7 @@ function list_by_pattern_value(pattern, value)
   end
 end
 
-local list = get_inputs_list()
+local list = input.list()
 
 
 print("Listing aviable input devices...")

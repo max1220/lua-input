@@ -103,7 +103,7 @@ static int l_read_multiple(lua_State *L) {
 }
 
 
-LUALIB_API int luaopen_input(lua_State *L) {
+LUALIB_API int luaopen_input_lua_input(lua_State *L) {
 	lua_newtable(L);
 	LUA_T_PUSH_S_CF("open", l_open)
 	LUA_T_PUSH_S_CF("read_multiple", l_read_multiple)

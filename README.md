@@ -12,9 +12,8 @@ Build
 
     make
 
-The build module is input.so.
 Also downloads input-event-codes.h from git, and saves usefull defines in input-event-codes.lua
-Install by putting input-event-codes.lua somewhere in Lua's package.path, and input.so in Lua's package.cpath:
+Install by putting this folder somewhere in Lua's package.path and package.cpath:
 
     lua -e "print("", package.path:gsub(';', '\n'):gsub('?', '[?]'))"
     lua -e "print("", package.path:gsub(';', '\n'):gsub('?', '[?]'))"
