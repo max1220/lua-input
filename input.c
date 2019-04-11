@@ -49,6 +49,13 @@ static int l_input_tostring(lua_State *L) {
 }
 
 
+static int l_input_close(lua_State *L) {
+	input_t *input = (input_t *)lua_touserdata(L, 1);
+	close(input->fd);
+	return 0;
+}
+
+
 static int l_open(lua_State *L) {
 	input_t *dev = (input_t *)lua_newuserdata(L, sizeof(*dev));
 
@@ -70,8 +77,8 @@ static int l_open(lua_State *L) {
 	lua_pushvalue(L, -1);
 	lua_setfield(L, -2, "__index");
 	LUA_T_PUSH_S_CF("read", l_input_read)
-	//LUA_T_PUSH_S_CF("close", l_input_close)
-	//LUA_T_PUSH_S_CF("__gc", l_input_close)
+	LUA_T_PUSH_S_CF("close", l_input_close)
+	LUA_T_PUSH_S_CF("__gc", l_input_close)
 	LUA_T_PUSH_S_CF("__tostring", l_input_tostring)
 	lua_setmetatable(L, -2);
 
