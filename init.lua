@@ -9,7 +9,7 @@ local input = require("lua-input.lua_input")
 
 -- add lua parts
 input.list = require("lua-input.get_inputs_list")
-input.event_codes = require("input-event-codes")
+input.event_codes = require("lua-input.input-event-codes")
 
 -- return module table
 return input
