@@ -28,7 +28,7 @@ static int l_input_read(lua_State *L) {
 	input_t *input = (input_t *)lua_touserdata(L, 1);
 	struct input_event data;
 	
-	if(read(input->fd, &data, sizeof(data)) > 0) {
+	if (read(input->fd, &data, sizeof(data)) > 0) {
 		lua_newtable(L);
 		LUA_T_PUSH_S_N("time", (double) data.time.tv_sec)
 		LUA_T_PUSH_S_N("utime", (double) data.time.tv_usec)
@@ -57,7 +57,7 @@ static int l_input_close(lua_State *L) {
 
 
 static int l_open(lua_State *L) {
-	input_t *dev = (input_t *)lua_newuserdata(L, sizeof(*dev));
+	input_t *dev = (input_t *)lua_newuserdata(L, sizeof(dev));
 
 	dev->path = strdup(luaL_checkstring(L, 1));
 
