@@ -1,49 +1,47 @@
-lua-input
-=========
+# lua-input
 
-Description
------------
-A simple binding to linux's sys/input.h.
+## v2 is currently very WIP. Use at your own risk.
 
 
+## Description
 
-Build
------
+A library for handling input in Lua.
 
-    make
+Currently supports Linux Input Subsystem(aka. `/dev/input/event*` and `/dev/uinput`).
 
-Also downloads input-event-codes.h from git, and saves usefull defines in input-event-codes.lua
-Install by putting this folder somewhere in Lua's package.path and package.cpath:
-
-    lua -e "print("", package.path:gsub(';', '\n'):gsub('?', '[?]'))"
-    lua -e "print("", package.path:gsub(';', '\n'):gsub('?', '[?]'))"
+Planned to support multiple input sources and converting between various event types.
 
 
-Installing symlinks
--------------------
+
+
+## Build
+
+For compiling the C libraries running this in the top-level directory should
+suffice:
+```
+make clean && make all
+```
+
+
+## Installing symlinks
+
+Instead of running `make install` to copy the generated files, you can use these
+commands to create symlinks(for development purposes):
 
 ```
 sudo ln -s $(pwd)/lua/ /usr/local/share/lua/5.1/lua-input
-sudo ln -s $(pwd)/src/input_source_linux.so /usr/local/lib/lua/5.1/
+sudo ln -s $(pwd)/src/input_linux.so /usr/local/lib/lua/5.1/
 
-``
-
-
-
-Examples
---------
-Examples are in the examples/ folder.
+```
 
 
 
-Usage
------
-The library exports 2 functions:
+## Examples
 
-* open(path, blocking):
-  + Returns a handler to the device specified via path. Return nil,err on error.
-    * This device has exactly one function, :read(), which will return the next event as a table if aviable, nil otherwise. (non-blocking)
-* list()
-  + Returns a list of all aviable inputs.
+Examples are in the `examples/` folder.
 
-Each device can be read(), which returns a table containing time, type, code, and value of the event.
+
+
+## Usage
+
+TODO(Currently see examples)
