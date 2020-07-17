@@ -19,6 +19,16 @@ Install by putting this folder somewhere in Lua's package.path and package.cpath
     lua -e "print("", package.path:gsub(';', '\n'):gsub('?', '[?]'))"
 
 
+Installing symlinks
+-------------------
+
+```
+sudo ln -s $(pwd)/lua/ /usr/local/share/lua/5.1/lua-input
+sudo ln -s $(pwd)/src/input_source_linux.so /usr/local/lib/lua/5.1/
+
+``
+
+
 
 Examples
 --------

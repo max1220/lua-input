@@ -1,8 +1,14 @@
+-- load the C module(returns a table)
+local input_linux = require("input_linux")
+
+-- load list of constants
+input_linux.input_event_codes = require("lua-input.input-event-codes")
+
 local function trim(str)
    return str:match("^%s*(.-)%s*$")
 end
 
-local function get_inputs_list()
+function input_linux:get_devices_list()
 	local list_f = assert(io.open("/proc/bus/input/devices", "r"))
 	local devs = {}
 	local cdev = { lines = {} }
@@ -41,4 +47,32 @@ local function get_inputs_list()
 	end
 	return devs
 end
-return get_inputs_list
+
+function input_linux:list_by_pattern_value(pattern, value)
+	-- get an event code by matching the name and the value
+	for k,v in pairs(self.input_event_codes) do
+		if k:match(pattern) and v == value then
+			return k,v
+		end
+	end
+end
+
+function input_linux:ev_to_str(ev)
+	-- get a best-guess for the event type string and code string
+	local type = self:list_by_pattern_value("^EV_", ev.type)
+	local code
+	if type == "EV_KEY" then
+		code = self:list_by_pattern_value("^KEY_", ev.code) or self:list_by_pattern_value("^BTN_", ev.code)
+	elseif type == "EV_ABS" then
+		code = self:list_by_pattern_value("^ABS_", ev.code)
+	elseif type == "EV_REL" then
+		code = self:list_by_pattern_value("^REL_", ev.code)
+	elseif type == "EV_MSC" then
+		code = self:list_by_pattern_value("^MSC_", ev.code)
+	elseif type == "EV_SYN" then
+		code = self:list_by_pattern_value("^SYN_", ev.code)
+	end
+	return type,code
+end
+
+return input_linux
