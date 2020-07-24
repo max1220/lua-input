@@ -16,6 +16,7 @@
 #include "input_linux.h"
 
 #define LUA_T_PUSH_S_N(S, N) lua_pushstring(L, S); lua_pushnumber(L, N); lua_settable(L, -3);
+#define LUA_T_PUSH_S_I(S, N) lua_pushstring(L, S); lua_pushinteger(L, N); lua_settable(L, -3);
 #define LUA_T_PUSH_S_CF(S, CF) lua_pushstring(L, S); lua_pushcfunction(L, CF); lua_settable(L, -3);
 #define LUA_T_PUSH_S_S(S, S2) lua_pushstring(L, S); lua_pushstring(L, S2); lua_settable(L, -3);
 
@@ -113,11 +114,11 @@ static int lua_input_linux_read(lua_State *L) {
 
 	//push table containing event information
 	lua_newtable(L);
-	LUA_T_PUSH_S_N("time", (double) data.time.tv_sec)
-	LUA_T_PUSH_S_N("utime", (double) data.time.tv_usec)
-	LUA_T_PUSH_S_N("type", data.type)
-	LUA_T_PUSH_S_N("code", data.code)
-	LUA_T_PUSH_S_N("value", data.value)
+	LUA_T_PUSH_S_I("time", (double) data.time.tv_sec)
+	LUA_T_PUSH_S_I("utime", (double) data.time.tv_usec)
+	LUA_T_PUSH_S_I("type", data.type)
+	LUA_T_PUSH_S_I("code", data.code)
+	LUA_T_PUSH_S_I("value", data.value)
 	return 1;
 }
 
@@ -127,9 +128,9 @@ static int lua_input_linux_write(lua_State *L) {
 	input_linux_t *input;
 	LUA_INPUT_LINUX_CHECK(L, 1, input)
 
-	int type = lua_tonumber(L, 2);
-	int code = lua_tonumber(L, 3);
-	int value = lua_tonumber(L, 4);
+	int type = lua_tointeger(L, 2);
+	int code = lua_tointeger(L, 3);
+	int value = lua_tointeger(L, 4);
 
 	if ((!input->can_write) || (type<0) || (type>0xffff) || (code<0) || (code>0xffff)){
 		return 0;
@@ -149,12 +150,28 @@ static int lua_input_linux_write(lua_State *L) {
 
 
 
+static int lua_input_linux_grab(lua_State *L) {
+	input_linux_t *input;
+	LUA_INPUT_LINUX_CHECK(L, 1, input)
+	int grab = lua_toboolean(L, 2);
+
+	//if (!input->can_write) {
+	//	return 0;
+	//}
+
+	if (ioctl(input->fd, EVIOCGRAB, grab)<0) {
+		return 0;
+	}
+
+	lua_pushboolean(L, 1);
+	return 1;
+}
 
 static int lua_input_linux_set_bit(lua_State *L) {
 	input_linux_t *input;
 	LUA_INPUT_LINUX_CHECK(L, 1, input)
 	const char* field_str = lua_tostring(L, 2);
-	int bit = lua_tonumber(L, 3);
+	int bit = lua_tointeger(L, 3);
 
 	if ((!input->can_write) || (lua_isnumber(L, 3)==0) || (field_str==NULL)) {
 		return 0;
@@ -186,14 +203,63 @@ static int lua_input_linux_set_bit(lua_State *L) {
 	return 1;
 }
 
-static int lua_input_linux_setup(lua_State *L) {
+static int lua_input_linux_abs_info(lua_State *L) {
+	struct input_absinfo abs_info;
+	input_linux_t *input;
+	LUA_INPUT_LINUX_CHECK(L, 1, input)
+	int abs_code = lua_tointeger(L, 2);
+
+	memset(&abs_info, 0, sizeof(abs_info));
+	if (ioctl(input->fd, EVIOCGABS(abs_code), &abs_info)<0) {
+		return 0;
+	}
+
+	lua_newtable(L);
+
+	LUA_T_PUSH_S_I("value", abs_info.value);
+	LUA_T_PUSH_S_I("minimum", abs_info.minimum);
+	LUA_T_PUSH_S_I("maximum", abs_info.maximum);
+	LUA_T_PUSH_S_I("fuzz", abs_info.fuzz);
+	LUA_T_PUSH_S_I("flat", abs_info.flat);
+	LUA_T_PUSH_S_I("resolution", abs_info.resolution);
+
+	return 1;
+}
+
+static int lua_input_linux_abs_setup(lua_State *L) {
+	struct uinput_abs_setup abs_setup;
+	input_linux_t *input;
+	LUA_INPUT_LINUX_CHECK(L, 1, input)
+
+	if (!input->can_write) {
+		return 0;
+	}
+
+	memset(&abs_setup, 0, sizeof(abs_setup));
+	abs_setup.code = lua_tointeger(L, 2);
+	abs_setup.absinfo.value = lua_tointeger(L, 3);
+	abs_setup.absinfo.minimum = lua_tointeger(L, 4);
+	abs_setup.absinfo.maximum = lua_tointeger(L, 5);
+	abs_setup.absinfo.fuzz = lua_tointeger(L, 6);
+	abs_setup.absinfo.flat = lua_tointeger(L, 7);
+	abs_setup.absinfo.resolution = lua_tointeger(L, 8);
+
+	if (ioctl(input->fd, UI_ABS_SETUP, &abs_setup)<0) {
+		return 0;
+	}
+
+	lua_pushboolean(L, 1);
+	return 1;
+}
+
+static int lua_input_linux_dev_setup(lua_State *L) {
 	struct uinput_setup usetup;
 	input_linux_t *input;
 	LUA_INPUT_LINUX_CHECK(L, 1, input)
 
 	const char* str = lua_tostring(L, 2);
-	int vendor = lua_tonumber(L, 3);
-	int product = lua_tonumber(L, 4);
+	int vendor = lua_tointeger(L, 3);
+	int product = lua_tointeger(L, 4);
 
 	if ((!input->can_write) || (!str) ||(vendor<0) || (vendor>0xffff) || (product<0) || (product>0xffff)) {
 		return 0;
@@ -212,7 +278,23 @@ static int lua_input_linux_setup(lua_State *L) {
 	return 1;
 }
 
-static void push_input_linux_metatable(lua_State *L) {
+static int lua_input_linux_dev_destroy(lua_State *L) {
+	input_linux_t *input;
+	LUA_INPUT_LINUX_CHECK(L, 1, input)
+
+	if (!input->can_write) {
+		return 0;
+	}
+
+	if (ioctl(input->fd, UI_DEV_DESTROY)<0) {
+		return 0;
+	}
+
+	lua_pushboolean(L, 1);
+	return 1;
+}
+
+static void input_linux_push_metatable(lua_State *L) {
 	// push/create metatable for userdata.
 	// The same metatable is used for every input_linux handle(sink/source).
 	if (luaL_newmetatable(L, INPUT_LINUX_UDATA_NAME)) {
@@ -221,11 +303,17 @@ static void push_input_linux_metatable(lua_State *L) {
 		LUA_T_PUSH_S_CF("read", lua_input_linux_read)
 		LUA_T_PUSH_S_CF("write", lua_input_linux_write)
 		LUA_T_PUSH_S_CF("set_bit", lua_input_linux_set_bit)
-		LUA_T_PUSH_S_CF("setup", lua_input_linux_setup)
+		LUA_T_PUSH_S_CF("dev_setup", lua_input_linux_dev_setup)
+		LUA_T_PUSH_S_CF("dev_destroy", lua_input_linux_dev_destroy)
+		LUA_T_PUSH_S_CF("grab", lua_input_linux_grab)
+		LUA_T_PUSH_S_CF("abs_info", lua_input_linux_abs_info)
+		LUA_T_PUSH_S_CF("abs_setup", lua_input_linux_abs_setup)
 		LUA_T_PUSH_S_CF("can_read", lua_input_linux_can_read)
 		LUA_T_PUSH_S_CF("can_write", lua_input_linux_can_write)
 		LUA_T_PUSH_S_CF("get_fd", lua_input_linux_get_fd)
 		LUA_T_PUSH_S_CF("close", lua_input_linux_close)
+
+
 		LUA_T_PUSH_S_CF("tostring", lua_input_linux_tostring)
 		lua_settable(L, -3);
 
@@ -266,7 +354,7 @@ static int lua_new_input_source_linux(lua_State *L) {
 	input->can_write = lua_toboolean(L, 2);
 
 	// create/push the metatable for INPUT_LINUX_UDATA_NAME
-	push_input_linux_metatable(L);
+	input_linux_push_metatable(L);
 
 	// apply metatable to userdata
 	lua_setmetatable(L, -2);
@@ -296,7 +384,7 @@ static int lua_new_input_sink_linux(lua_State *L) {
 	input->can_write = 1;
 
 	// create/push the metatable for INPUT_LINUX_UDATA_NAME
-	push_input_linux_metatable(L);
+	input_linux_push_metatable(L);
 
 	// apply metatable to userdata
 	lua_setmetatable(L, -2);
