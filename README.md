@@ -44,4 +44,7 @@ Examples are in the `examples/` folder.
 
 ## Usage
 
+You should always use `require("lua-input")` so that the Lua wrapper around the
+C module can extend the functionality.
+
 TODO(Currently see examples)

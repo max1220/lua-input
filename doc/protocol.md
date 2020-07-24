@@ -1,4 +1,4 @@
-# Network Protocol
+# Network Implementation
 
 The file `network_server.lua` is a simple server for distributing input events.
 
@@ -8,12 +8,15 @@ events from the server and forwards them to an input device.
 `network_client_source.lua` contain a client that forwards the events generated
 by an input device to the server.
 
+They all use `lua-socket` for networking.
 
 This document describes the protocol used by these scripts.
 
-The server accepts TCP connections from the clients.
+# Network Protocol
 
 All communication is line-based and case-sensitive.
+
+The server accepts TCP connections from the clients.
 
 On connection, the `server` requests the clients unique identifier via the `ID`
 command.
@@ -53,9 +56,10 @@ For each client input event, the client now sends a CLIENT_EVENT command.
  * `CLOSE` - request to close an input device(sink/source)
  * `LIST` - request list of available input devices(source)
  * `LISTEN` - request to get the events from the specified input device(source)
+ * `PING` - request the PONG command from the client(sent periodically)
 
 
 ## Client -> server
- * `CLIENT_ID [id]` - answer to ID command, the client ID(sink/source)
+ * `CLIENT_ID [id] [type]` - answer to ID command, the client ID(sink/source). Type is the client type.
  * `CLIENT_EVENT [type] [code] [value]` - after LISTEN, this contains an client input event(source)
  * `CLIENT_DEVICE [name]` - after LIST, this contains an input device(source)
