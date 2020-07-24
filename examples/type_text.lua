@@ -56,13 +56,18 @@ end
 input:set_bit("KEYBIT", input_event_codes.KEY_LEFTSHIFT)
 
 -- setup the device parameters and create a device
-input:setup("lua-input test", 0x1234, 0x5678, false)
+input:dev_setup("lua-input test", 0x1234, 0x5678, false)
 
 -- wait for userland to become ready
 time.sleep(1)
 
 -- type a string of text by pressing the corresponding keys
-type_text("Hello from Lua Input", input)
+type_text(arg[1] or "Hello from Lua Input", input, function()
+	time.sleep(0.1)
+end)
+
+-- wait for userland to handle all outstanding events
+time.sleep(1)
 
 -- detroy input
 input:close()
