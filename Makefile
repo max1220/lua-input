@@ -4,8 +4,10 @@ LUA_DIR = $(PREFIX)
 LUA_LIBDIR = $(LUA_DIR)/lib/lua/5.1
 LUA_SHAREDIR = $(LUA_DIR)/share/lua/5.1
 
-# input-event-codes.h location
-LINUX_INPUT_EVENT_CODES_H = /usr/src/linux-headers-$(uname -r)-common/include/uapi/linux/input-event-codes.h
+# input-event-codes.h location(for debian/maybe ubuntu)
+KERNEL_RELEASE = $(shell uname -r)
+KERNEL_VER = $(subst amd64,common,$(KERNEL_RELEASE))
+LINUX_INPUT_EVENT_CODES_H = /usr/src/linux-headers-$(KERNEL_VER)/include/uapi/linux/input-event-codes.h
 
 CFLAGS = -g -fPIC -std=c99 -Wall -Wextra -Wpedantic
 #CFLAGS = -O3 -fPIC -std=c99 -Wall -Wextra -Wpedantic -march=native -mtune=native
