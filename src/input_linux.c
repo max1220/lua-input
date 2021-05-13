@@ -332,7 +332,7 @@ static int lua_new_input_source_linux(lua_State *L) {
 	}
 
 	// open file read-write if second argument is true, read-only otherwise
-	int flags = (lua_toboolean(L, 2) ? O_RDWR : O_RDONLY) | O_NONBLOCK;
+	int flags = lua_toboolean(L, 2) ? 0 : O_NONBLOCK;
 
 	// try to get a file descriptor for the input device
 	int fd = open(path, flags);
@@ -351,7 +351,7 @@ static int lua_new_input_source_linux(lua_State *L) {
 		input->path = ""; // TODO
 	}
 	input->fd = fd;
-	input->can_write = lua_toboolean(L, 2);
+	input->can_write = 0;
 
 	// create/push the metatable for INPUT_LINUX_UDATA_NAME
 	input_linux_push_metatable(L);
