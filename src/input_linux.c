@@ -352,7 +352,7 @@ static int lua_new_input_source_linux(lua_State *L) {
 		input->path = ""; // TODO
 	}
 	input->fd = fd;
-	input->can_write = 0;
+	input->can_write = lua_toboolean(L, 3);
 
 	// create/push the metatable for INPUT_LINUX_UDATA_NAME
 	input_linux_push_metatable(L);
