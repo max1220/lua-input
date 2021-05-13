@@ -333,6 +333,7 @@ static int lua_new_input_source_linux(lua_State *L) {
 
 	// open file read-write if second argument is true, read-only otherwise
 	int flags = lua_toboolean(L, 2) ? 0 : O_NONBLOCK;
+	flags |= lua_toboolean(L, 3) ? O_RDWR : O_RDONLY;
 
 	// try to get a file descriptor for the input device
 	int fd = open(path, flags);
