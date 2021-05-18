@@ -47,3 +47,5 @@ install:
 	@echo "-> Installing in $(PREFIX)"
 	install -b -d $(LUA_SHAREDIR)/lua-input
 	install -b -t $(LUA_SHAREDIR)/lua-input lua/*.lua
+	install -b -d $(LUA_LIBDIR)/
+	install -b -t $(LUA_LIBDIR)/ src/*.so
