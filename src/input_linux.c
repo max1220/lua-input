@@ -266,6 +266,29 @@ static int lua_input_linux_vibr_effect(lua_State *L) {
 	return 1;
 }
 
+static int lua_input_linux_vibr_gain(lua_State *L) {
+	input_linux_t *input;
+	LUA_INPUT_LINUX_CHECK(L, 1, input)
+
+	int gain = lua_tointeger(L, 2);
+	if (gain<0) {
+		return 0;
+	}
+
+	struct input_event gain = {
+        .type = EV_FF,
+        .code = FF_GAIN,
+        .value = gain,
+    };
+
+	if (write(input->fd, &play, sizeof play) < 0) {
+		return 0;
+	}
+
+	lua_pushboolean(L, 1);
+	return 1;
+}
+
 static int lua_input_linux_vibr_start(lua_State *L) {
 	input_linux_t *input;
 	LUA_INPUT_LINUX_CHECK(L, 1, input)
