@@ -242,10 +242,10 @@ static int lua_input_linux_vibr_effect(lua_State *L) {
         .u.constant = {
                 .level = lua_tointeger(L, 4),
 				.envelope = {
-					attack_length = lua_tointeger(L, 5),
-					attack_level = lua_tointeger(L, 6),
-					fade_length = lua_tointeger(L, 7),
-					fade_level = lua_tointeger(L, 8),
+					.attack_length = lua_tointeger(L, 5),
+					.attack_level = lua_tointeger(L, 6),
+					.fade_length = lua_tointeger(L, 7),
+					.fade_level = lua_tointeger(L, 8),
 				}
         },
     };
