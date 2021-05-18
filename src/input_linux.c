@@ -237,15 +237,23 @@ static int lua_input_linux_vibr_effect(lua_State *L) {
         .id = -1,
         .replay = {
                 .length = lua_tointeger(L, 2),
-                .delay = lua_tointeger(L, 3),
+                .delay = lua_tointeger(L, 3)
         },
-        .u.constant = {
-                .level = lua_tointeger(L, 4),
+		.trigger = {
+			.button = 0,
+			.interval = 0
+		},
+        .u.periodic = {
+				.waveform = FF_SINE,
+				.period = lua_tointeger(L, 4),
+                .magnitude = lua_tointeger(L, 5),
+				.offset = 0,
+				.phase = 0,
 				.envelope = {
-					.attack_length = lua_tointeger(L, 5),
-					.attack_level = lua_tointeger(L, 6),
-					.fade_length = lua_tointeger(L, 7),
-					.fade_level = lua_tointeger(L, 8),
+					.attack_length = lua_tointeger(L, 6),
+					.attack_level = lua_tointeger(L, 7),
+					.fade_length = lua_tointeger(L, 8),
+					.fade_level = lua_tointeger(L, 9)
 				}
         },
     };
