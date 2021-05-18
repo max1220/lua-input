@@ -142,7 +142,9 @@ static int lua_input_linux_write(lua_State *L) {
 	ie.time.tv_sec = 0;
 	ie.time.tv_usec = 0;
 
-	write(input->fd, &ie, sizeof(ie));
+	if (write(input->fd, &ie, sizeof(ie)) < 0)  {
+		return 0;
+	}
 
 	lua_pushboolean(L, 1);
 	return 1;
@@ -223,6 +225,71 @@ static int lua_input_linux_abs_info(lua_State *L) {
 	LUA_T_PUSH_S_I("flat", abs_info.flat);
 	LUA_T_PUSH_S_I("resolution", abs_info.resolution);
 
+	return 1;
+}
+
+static int lua_input_linux_vibr_effect(lua_State *L) {
+	input_linux_t *input;
+	LUA_INPUT_LINUX_CHECK(L, 1, input)
+
+	struct ff_effect my_effect = {
+        .type = FF_RUMBLE,
+        .id = -1,
+        .replay = {
+                .length = 500,
+                .delay = 500,
+        },
+        .u.rumble = {
+                .strong_magnitude = 1,
+        },
+    };
+
+	if (ioctl(input->fd, EVIOCSFF, &my_effect)<0) {
+		return 0;
+	}
+
+	lua_pushinteger(L, my_effect.id);
+	return 1;
+}
+
+static int lua_input_linux_vibr_start(lua_State *L) {
+	input_linux_t *input;
+	LUA_INPUT_LINUX_CHECK(L, 1, input)
+
+	int id = lua_tointeger(L, 2);
+	int count = lua_tointeger(L, 3);
+	if ((id<0) || (count<0)) {
+		return 0;
+	}
+
+	struct input_event play = {
+        .type = EV_FF,
+        .code = id,
+        .value = count,
+    };
+
+	if (write(input->fd, &play, sizeof play) < 0) {
+		return 0;
+	}
+
+	lua_pushboolean(L, 1);
+	return 1;
+}
+
+static int lua_input_linux_vibr_remove(lua_State *L) {
+	input_linux_t *input;
+	LUA_INPUT_LINUX_CHECK(L, 1, input)
+
+	int id = lua_tointeger(L, 2);
+	if (id<0) {
+		return 0;
+	}
+
+	if (ioctl(input->fd, EVIOCRMFF, id)<0) {
+		return 0;
+	}
+
+	lua_pushboolean(L, 1);
 	return 1;
 }
 
