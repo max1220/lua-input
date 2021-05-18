@@ -414,6 +414,7 @@ static void input_linux_push_metatable(lua_State *L) {
 		LUA_T_PUSH_S_CF("abs_setup", lua_input_linux_abs_setup)
 		LUA_T_PUSH_S_CF("vibr_effect", lua_input_linux_vibr_effect)
 		LUA_T_PUSH_S_CF("vibr_start", lua_input_linux_vibr_start)
+		LUA_T_PUSH_S_CF("vibr_gain", lua_input_linux_vibr_gain)
 		LUA_T_PUSH_S_CF("vibr_remove", lua_input_linux_vibr_remove)
 		LUA_T_PUSH_S_CF("can_read", lua_input_linux_can_read)
 		LUA_T_PUSH_S_CF("can_write", lua_input_linux_can_write)
