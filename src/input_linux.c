@@ -157,9 +157,9 @@ static int lua_input_linux_grab(lua_State *L) {
 	LUA_INPUT_LINUX_CHECK(L, 1, input)
 	int grab = lua_toboolean(L, 2);
 
-	//if (!input->can_write) {
-	//	return 0;
-	//}
+	if (!input->can_write) {
+		return 0;
+	}
 
 	if (ioctl(input->fd, EVIOCGRAB, grab)<0) {
 		return 0;
@@ -174,30 +174,35 @@ static int lua_input_linux_set_bit(lua_State *L) {
 	LUA_INPUT_LINUX_CHECK(L, 1, input)
 	const char* field_str = lua_tostring(L, 2);
 	int bit = lua_tointeger(L, 3);
+	int ret = -1;
 
 	if ((!input->can_write) || (lua_isnumber(L, 3)==0) || (field_str==NULL)) {
 		return 0;
 	}
 
 	if (strcmp(field_str, "EVBIT")==0) {
-		ioctl(input->fd, UI_SET_EVBIT, bit);
+		ret = ioctl(input->fd, UI_SET_EVBIT, bit);
 	} else if (strcmp(field_str, "KEYBIT")==0) {
-		ioctl(input->fd, UI_SET_KEYBIT, bit);
+		ret = ioctl(input->fd, UI_SET_KEYBIT, bit);
 	} else if (strcmp(field_str, "RELBIT")==0) {
-		ioctl(input->fd, UI_SET_RELBIT, bit);
+		ret = ioctl(input->fd, UI_SET_RELBIT, bit);
 	} else if (strcmp(field_str, "ABSBIT")==0) {
-		ioctl(input->fd, UI_SET_ABSBIT, bit);
+		ret = ioctl(input->fd, UI_SET_ABSBIT, bit);
 	} else if (strcmp(field_str, "MSCBIT")==0) {
-		ioctl(input->fd, UI_SET_MSCBIT, bit);
+		ret = ioctl(input->fd, UI_SET_MSCBIT, bit);
 	} else if (strcmp(field_str, "LEDBIT")==0) {
-		ioctl(input->fd, UI_SET_LEDBIT, bit);
+		ret = ioctl(input->fd, UI_SET_LEDBIT, bit);
 	} else if (strcmp(field_str, "SNDBIT")==0) {
-		ioctl(input->fd, UI_SET_SNDBIT, bit);
+		ret = ioctl(input->fd, UI_SET_SNDBIT, bit);
 	} else if (strcmp(field_str, "SWBIT")==0) {
-		ioctl(input->fd, UI_SET_SWBIT, bit);
+		ret = ioctl(input->fd, UI_SET_SWBIT, bit);
 	} else if (strcmp(field_str, "PROPBIT")==0) {
-		ioctl(input->fd, UI_SET_PROPBIT, bit);
+		ret = ioctl(input->fd, UI_SET_PROPBIT, bit);
 	} else {
+		return 0;
+	}
+
+	if (ret<0) {
 		return 0;
 	}
 
@@ -375,8 +380,12 @@ static int lua_input_linux_dev_setup(lua_State *L) {
 	usetup.id.product = (uint16_t)product;
 	strncpy(usetup.name, str, UINPUT_MAX_NAME_SIZE-1);
 
-	ioctl(input->fd, UI_DEV_SETUP, &usetup);
-	ioctl(input->fd, UI_DEV_CREATE);
+	if (ioctl(input->fd, UI_DEV_SETUP, &usetup)<0) {
+		return 0;
+	}
+	if (ioctl(input->fd, UI_DEV_CREATE)<0) {
+		return 0;
+	}
 
 	lua_pushboolean(L, 1);
 	return 1;
