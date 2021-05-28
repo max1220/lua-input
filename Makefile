@@ -14,7 +14,6 @@ CFLAGS = -g -fPIC -std=c99 -Wall -Wextra -Wpedantic
 LIBFLAG = -shared -llua5.1
 
 LUA_CFLAGS = -I/usr/include/lua5.1
-LUA_LIBS = -llua5.1
 
 
 .DEFAULT_GOAL := all
