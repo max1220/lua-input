@@ -1,39 +1,57 @@
-lua-input
-=========
+# lua-input
 
-Description
------------
-A simple binding to linux's sys/input.h.
+Library for using the Linux input/uinput subsystem to read input events
+or create input devices and events.
 
+This allows reading keyboard/mouse/touchscreen events,
+and emulating input devices for all other applications on the system.
 
-
-Build
------
-
-    make
-
-Also downloads input-event-codes.h from git, and saves usefull defines in input-event-codes.lua
-Install by putting this folder somewhere in Lua's package.path and package.cpath:
-
-    lua -e "print("", package.path:gsub(';', '\n'):gsub('?', '[?]'))"
-    lua -e "print("", package.path:gsub(';', '\n'):gsub('?', '[?]'))"
+Compatible with Lua5.1, LuaJIT, Lua5.2, Lua5.3, Lua5.4.
 
 
 
-Examples
---------
-Examples are in the examples/ folder.
+
+
+# Installation
+
+See [doc/INSTALLATION.md](doc/INSTALLATION.md)
+
+This library is packaged and build using Luarocks, which makes building
+and installing easy.
+
+```
+git clone https://github.com/max1220/lua-input
+cd lua-input
+# install locally, usually to ~/.luarocks
+luarocks make --local
+```
+
+When installing locally you need to tell Lua where to look for modules
+installed using Luarocks, e.g.:
+
+```
+luarocks path >> ~/.bashrc
+```
+
+You can also install the library manually, see documentation.
 
 
 
-Usage
------
-The library exports 2 functions:
 
-* open(path, blocking):
-  + Returns a handler to the device specified via path. Return nil,err on error.
-    * This device has exactly one function, :read(), which will return the next event as a table if aviable, nil otherwise. (non-blocking)
-* list()
-  + Returns a list of all aviable inputs.
 
-Each device can be read(), which returns a table containing time, type, code, and value of the event.
+## Library usage
+
+Full usage see [doc/USAGE.md](doc/USAGE.md)
+
+### Reading events from a device
+
+```
+local input = require("lua-input")
+
+-- read events from a device
+local input_dev = input.open_input("/dev/input/event0")
+while true do
+	local ev = input_dev:read_event()
+	print("event",ev.type, ev.code, ev.value)
+end
+```
