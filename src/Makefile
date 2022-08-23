@@ -9,7 +9,7 @@ LUA_INCDIR ?= /usr/include/lua5.1
 .PHONY: clean all
 .DEFAULT_GOAL := all
 
-all: time.so
+all: input.so
 
 clean:
 	rm -f time.o time.so
