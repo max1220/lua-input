@@ -6,7 +6,10 @@ local dev = assert(arg[1], "First command-line argument must be a device!")
 local input_dev = assert(input.open_input(dev), "Can't open input device!")
 
 -- the output format string for events
-local fmt_str = arg[2] or "type({{type_hex}})={{type_str_align}} code({{code_hex}})={{code_str_align}} value={{value_align}} time={{time}}"
+local fmt_str = arg[2] or "type({{type_hex}})={{type_str_align}} "..
+"code({{code_hex}})={{code_str_align}} "..
+"value={{value_align}} "..
+"time={{time}}"
 
 -- print a single event by expanding the fmt_str
 local function print_ev(type, code, value, time)
