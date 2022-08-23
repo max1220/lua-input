@@ -1,4 +1,4 @@
-# Library usage
+# Basic library usage
 
 The library is split into two parts:
 A C library that performs `ioctl()`'s, `read()`'s, and `writes()`'s relating
@@ -25,6 +25,8 @@ while true do
 end
 ```
 
+
+
 ## Creating a device and writing events
 
 ```
@@ -43,6 +45,7 @@ os.execute("sleep 1")
 uinput_dev:write_event(input.event_codes.EV_KEY, input.event_codes.KEY_I, 1)
 uinput_dev:write_event(input.event_codes.EV_KEY, input.event_codes.KEY_I, 0)
 ```
+
 
 
 
@@ -68,25 +71,60 @@ which defines the event codes.
 The index is a the event code name(e.g. "EV_KEY"), and the value is the
 numeric value, as specified by the header(e.g. 0x01).
 
-## list = input.get_devices_list()
-
-Get a list of known input devices. Each entry in the list has the
-following fields:
-
-``
-
-## input.ev_to_str()
 
 
+## list = input.get_devices()
+
+Get a list of known input devices.
+This is a Lua table version of `/proc/bus/input/devices`.
+
+Each entry in the list might have some of the following fields:
+
+ * bus(number)
+ * vendor(number)
+ * product(number)
+ * version(number)
+ * name(string)
+ * phys(string)
+ * sysfs(string)
+ * handlers(table)
+ * capabillities(table)
+
+The capabillities table is first indexed by the lower-case capabillity
+name, then by the event code. This value is parsed from the bitfields
+in `/proc/bus/input/devices`(`B: ` lines), e.g:
+```
+assert(dev.capabillities.key["EV_A"]) -- Check that the A keycode is supported on the device
+```
+
+For the meaning of each field, see the Linux input/uinput documentation.
 
 
-## device = input.open_input()
+
+## type_str, code_str = input.ev_to_str(type, code)
+
+Return a human-readable version of the type and code.
+
+
+
+## device = input.open_input(dev)
+
+Open the specified device.
+
+`dev` can be one of:
+
+ * number(treated as fd): Pre-opened file descriptor
+ * string "uinput": Open /dev/uinput for creating new input devices
+ * string(treated as path): Path to an input device(e.g. "/dev/input/event2")
+ * table: Use a table returned by input.get_devices_list()
+
 
 
 ## device = input.make_handler_from_fd()
 
 This is an internal function that creates a device table for the
 specified file descriptor(input.open_input is a wrapper for this function).
+
 
 
 ## device
