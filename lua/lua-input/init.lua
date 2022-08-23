@@ -11,8 +11,8 @@ lua_input.event_codes = require("lua-input.input_event_codes")
 -- shortcut to ev_to_str
 lua_input.ev_to_str = require("lua-input.ev_to_str")
 
--- shortcut to ev_to_str
-lua_input.get_device_list = require("lua-input.get_device_list")
+-- shortcut to get_device_list
+lua_input.get_devices = require("lua-input.get_devices")
 
 
 -- wrap the C-functions in a table for this fd
@@ -60,14 +60,14 @@ end
 
 -- return true if f is a Lua file object
 local function is_file(f)
-	return (type(input_dev) == "userdata") and (getmetatable(input_dev) == getmetatable(io.stdin))
+	return (type(f) == "userdata") and (getmetatable(f) == getmetatable(io.stdin))
 end
 
 -- open the specified input device.
 function lua_input.open_input(input_dev)
 	if (type(input_dev) == "number") or is_file(input_dev) then
 		-- Lua file or file descriptor number
-		return lua_input.make_handler_from_fd(fd)
+		return lua_input.make_handler_from_fd(input_dev)
 	elseif input_dev == "uinput" then
 		-- use /dev/uinput
 		return lua_input.make_handler_from_fd(input.open_rw("/dev/uinput"))
