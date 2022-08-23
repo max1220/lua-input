@@ -1,17 +1,20 @@
 #!/usr/bin/env lua5.1
 local input = require("lua-input")
-local time = require("time")
+
+-- function to sleep for specified amount of seconds
+local sleep = require("time").sleep
 
 -- open the specified device(must support force-feedback effects)
-local vibr_dev = assert(input.open_input(dev))
+local dev = assert(arg[1], "First command-line argument must be a device!")
+local vibr_dev = assert(input.open_input(dev), "Can't open input device!")
 
 -- upload a force-feedback effect to the device
 local effect_id = assert(vibr_dev:vibr_effect(10000, 1000, 100), "Can't upload effect!")
 
 -- start the pattern every 0.5 seconds for 5 seconds
-for i=1, 10 do
+for _=1, 10 do
 	assert(vibr_dev:vibr_start(effect_id, 10), "Can't start effect")
-	time.sleep(0.5)
+	sleep(0.5)
 end
 
 -- remove the effect
