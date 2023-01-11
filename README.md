@@ -37,6 +37,18 @@ You can also install the library manually, see documentation.
 
 
 
+## Device permissions
+
+Because this library might read/write access to the `/dev/input/*` or `/dev/uinput`
+special files, you need to make sure your user has the correct permissions.
+The `/dev/input/event*` files are typically owned by the `input` group, so
+`adduser <your username> input` should be enough to give you access.
+For security reasons, the `/dev/uinput` device is owned `root:root`, since it
+can add virtual input devices to the computer that are 
+identified as regular system input devices.
+If your usecase requires access to this functionallity, I recommend creating a
+separate user or group for access to `/dev/uinput`.
+You never should `chmod` the files in `/dev/`.
 
 
 ## Library usage
