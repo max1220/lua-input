@@ -16,7 +16,7 @@ end
 
 -- write a start force-feedback effect event code
 function device_utils:vibr_start(id, count)
-	return self:write(
+	return self:write_event(
 		input_event_codes.EV_FF,
 		id,
 		count
@@ -25,7 +25,7 @@ end
 
 -- write a set force-feedback gain event code
 function device_utils:vibr_gain(gain)
-	return self:write(
+	return self:write_event(
 		input_event_codes.EV_FF,
 		input_event_codes.FF_GAIN,
 		gain

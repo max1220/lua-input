@@ -435,6 +435,7 @@ LUALIB_API int luaopen_input(lua_State *L) {
 	LUA_T_PUSH_S_CF("abs_setup", lua_input_abs_setup)
 	LUA_T_PUSH_S_CF("can_read", lua_input_can_read)
 	LUA_T_PUSH_S_CF("can_write", lua_input_can_write)
+	LUA_T_PUSH_S_CF("close", lua_input_close)
 	LUA_T_PUSH_S_CF("dev_destroy", lua_input_dev_destroy)
 	LUA_T_PUSH_S_CF("dev_setup", lua_input_dev_setup)
 	LUA_T_PUSH_S_CF("grab", lua_input_grab)
