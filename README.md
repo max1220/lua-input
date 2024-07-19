@@ -35,6 +35,7 @@ luarocks path >> ~/.bashrc
 
 You can also install the library manually, see documentation.
 
+Some of the examples also require my simple [time library](https://github.com/max1220/lua-time).
 
 
 ## Device permissions
